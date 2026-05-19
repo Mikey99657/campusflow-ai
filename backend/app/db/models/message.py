@@ -17,7 +17,7 @@ class Message(Base):
     agent_name: Mapped[str | None] = mapped_column(String(50))
     tool_calls: Mapped[dict | None] = mapped_column(JSON)
     token_count: Mapped[int | None] = mapped_column(Integer)
-    metadata: Mapped[dict | None] = mapped_column(JSON)
+    extra_data: Mapped[dict | None] = mapped_column(JSON)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
     # Relationships

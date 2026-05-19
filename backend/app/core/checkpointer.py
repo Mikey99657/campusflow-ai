@@ -1,4 +1,4 @@
-from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.checkpoint.memory import MemorySaver
 
 from app.config import get_settings
 
@@ -6,10 +6,11 @@ from app.config import get_settings
 def get_checkpointer():
     """Get a checkpointer instance for workflow state persistence.
 
-    Uses SQLite for development, can be swapped to PostgreSQL for production.
+    Uses in-memory checkpointer for development.
+    Can be swapped to PostgresSaver for production.
     """
     settings = get_settings()
 
-    # For SQLite-based checkpointer
-    # In production, use PostgresSaver.from_conn_string(settings.DATABASE_URL)
-    return SqliteSaver.from_conn_string(":memory:")
+    # In-memory checkpointer for development
+    # For production: from langgraph.checkpoint.postgres import PostgresSaver
+    return MemorySaver()
