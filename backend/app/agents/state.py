@@ -13,3 +13,4 @@ class AgentState(TypedDict):
     task_type: str
     context_summary: str
     metadata: dict
+    round_count: int

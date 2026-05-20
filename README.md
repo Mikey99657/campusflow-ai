@@ -100,9 +100,9 @@ campusflow-ai/
 | 变量 | 说明 | 默认值 |
 |------|------|--------|
 | LLM_PROVIDER | 模型提供者 | mimo |
-| LLM_BASE_URL | API 地址 | https://api.siliconflow.cn/v1 |
+| LLM_BASE_URL | API 地址 | - |
 | LLM_API_KEY | API 密钥 | - |
-| LLM_MODEL_NAME | 模型名称 | Xiaomi/MiMo-7B-RL |
+| LLM_MODEL_NAME | 模型名称 | - |
 | DATABASE_URL | 数据库连接 | sqlite:///./data/campusflow.db |
 
 ## License

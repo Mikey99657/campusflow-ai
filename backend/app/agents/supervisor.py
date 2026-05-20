@@ -19,10 +19,12 @@ def build_supervisor_graph():
 
     Graph topology:
         START -> supervisor -> [coding_agent | report_agent | uml_agent | summary_agent | FINISH]
-                      ^                                         |
-                      +-----------------------------------------+
+                                      |                |              |              |
+                                      +--------+-------+-------+-----+-------+------+
+                                               v                v              v
+                                              END              END            END
 
-    All agents loop back to supervisor for next routing decision.
+    Each agent responds once, then ends.
     """
     # Build specialist sub-agents
     coding_agent = build_coding_agent()
@@ -54,11 +56,11 @@ def build_supervisor_graph():
         },
     )
 
-    # All agents loop back to supervisor
-    builder.add_edge("coding_agent", "supervisor")
-    builder.add_edge("report_agent", "supervisor")
-    builder.add_edge("uml_agent", "supervisor")
-    builder.add_edge("summary_agent", "supervisor")
+    # All agents go directly to END (no looping)
+    builder.add_edge("coding_agent", END)
+    builder.add_edge("report_agent", END)
+    builder.add_edge("uml_agent", END)
+    builder.add_edge("summary_agent", END)
 
     # Compile with checkpointer for state persistence
     checkpointer = get_checkpointer()

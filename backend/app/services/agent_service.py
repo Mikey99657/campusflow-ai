@@ -34,6 +34,7 @@ async def run_agent_stream(
         "task_type": "",
         "context_summary": "",
         "metadata": {"conversation_id": conversation_id},
+        "round_count": 0,
     }
 
     # Yield thinking event
@@ -43,53 +44,41 @@ async def run_agent_stream(
     }
 
     try:
-        # Stream graph execution
-        async for event in graph.astream(initial_state, config=config):
-            for node_name, node_output in event.items():
-                if node_name == "supervisor":
-                    # Supervisor routing decision
-                    next_agent = node_output.get("next_agent", "")
-                    if next_agent and next_agent != "FINISH":
-                        yield {
-                            "event": "agent_thinking",
-                            "data": {"agent": next_agent, "content": f"Routing to {next_agent}..."}
-                        }
+        # Use ainvoke to get the final result (avoids streaming internal ReAct iterations)
+        result = await graph.ainvoke(initial_state, config=config)
 
-                elif node_name in ["coding_agent", "report_agent", "uml_agent", "summary_agent"]:
-                    # Agent output
-                    messages = node_output.get("messages", [])
-                    for msg in messages:
-                        if isinstance(msg, AIMessage) and msg.content:
-                            yield {
-                                "event": "agent_message",
-                                "data": {
-                                    "agent": node_name,
-                                    "content": msg.content,
-                                    "delta": msg.content,
-                                }
-                            }
+        # Determine which agent responded
+        messages = result.get("messages", [])
+        agent_name = result.get("next_agent", "coding_agent")
 
-                            # Check for tool calls
-                            if hasattr(msg, "tool_calls") and msg.tool_calls:
-                                for tool_call in msg.tool_calls:
-                                    yield {
-                                        "event": "tool_call",
-                                        "data": {
-                                            "agent": node_name,
-                                            "tool": tool_call.get("name", ""),
-                                            "input": str(tool_call.get("args", "")),
-                                        }
-                                    }
+        # Find the last AI message (the agent's final response)
+        last_ai_msg = None
+        for msg in messages:
+            if isinstance(msg, AIMessage) and msg.content:
+                last_ai_msg = msg
 
-                elif node_name == "__end__":
-                    # Graph execution complete
-                    yield {
-                        "event": "done",
-                        "data": {
-                            "conversation_id": conversation_id,
-                            "status": "completed",
-                        }
-                    }
+        if last_ai_msg:
+            yield {
+                "event": "agent_thinking",
+                "data": {"agent": agent_name, "content": f"Routing to {agent_name}..."}
+            }
+            yield {
+                "event": "agent_message",
+                "data": {
+                    "agent": agent_name,
+                    "content": last_ai_msg.content,
+                    "delta": last_ai_msg.content,
+                }
+            }
+
+        # Done
+        yield {
+            "event": "done",
+            "data": {
+                "conversation_id": conversation_id,
+                "status": "completed",
+            }
+        }
 
     except Exception as e:
         yield {
