@@ -1,0 +1,87 @@
+============================================================
+  CampusFlow AI - Agent Workflow Demo Log
+  Date: 2026-05-20
+============================================================
+
+[REQUEST]
+User: Write a Java quicksort algorithm with detailed comments
+
+[WORKFLOW]
+  1. Supervisor Agent  -> Analyzing your request...
+  2. Supervisor Agent  -> Routing to coding_agent...
+  3. Coding Agent      -> Generating Java code...
+
+[RESPONSE]
+Agent: coding_agent
+Model: MiMo v2.5 Pro
+
+# Java Quicksort Algorithm with Detailed Comments
+
+public class QuickSort {
+
+    public static void quickSort(int[] arr) {
+        if (arr == null || arr.length <= 1) return;
+        quickSort(arr, 0, arr.length - 1);
+    }
+
+    private static void quickSort(int[] arr, int low, int high) {
+        if (low < high) {
+            int pivotIndex = partition(arr, low, high);
+            quickSort(arr, low, pivotIndex - 1);
+            quickSort(arr, pivotIndex + 1, high);
+        }
+    }
+
+    private static int partition(int[] arr, int low, int high) {
+        int pivot = arr[high];
+        int i = low - 1;
+        for (int j = low; j < high; j++) {
+            if (arr[j] <= pivot) {
+                i++;
+                swap(arr, i, j);
+            }
+        }
+        swap(arr, i + 1, high);
+        return i + 1;
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+
+    public static void main(String[] args) {
+        int[] arr = {10, 7, 8, 9, 1, 5};
+        quickSort(arr);
+        // Output: [1, 5, 7, 8, 9, 10]
+    }
+}
+
+[STATUS] Completed
+[DURATION] ~8s
+[TOKENS] ~2,500 (input: ~800, output: ~1,700)
+
+============================================================
+  Multi-Agent Architecture Summary
+============================================================
+
+  User Input
+      |
+      v
+  +------------------+
+  | Supervisor Agent |  <-- Intent classification & routing
+  +------------------+
+      |
+      +---> Coding Agent     (Java code generation)
+      +---> Report Agent     (Lab report writing)
+      +---> UML Agent        (UML diagram analysis)
+      +---> Summary Agent    (Learning summaries)
+
+  Models Used:
+  - MiMo v2.5 Pro (Xiaomi)     : Primary reasoning & code generation
+  - Claude (Anthropic)          : Code review & architecture analysis
+  - DeepSeek                    : Long-form report generation
+  - Qwen (Alibaba)              : Multi-modal UML analysis
+
+============================================================
